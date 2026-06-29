@@ -13,20 +13,19 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 @Configuration
 public class MethodRestConfig implements RepositoryRestConfigurer {
 
-    private String url ="http://localhost:8080";
+    private String url ="http://localhost:5173";
 
     @Autowired
     private EntityManager entityManager;
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
 //        RepositoryRestConfigurer.super.configureRepositoryRestConfiguration(config, cors);
+        //expose ids
+        //Cho phép trả bề id
+        config.exposeIdsFor(entityManager.getMetamodel().getEntities().stream().map(Type::getJavaType).toArray(Class[]::new));
 
-        HttpMethod[] chanCacPhuongThuc ={
-               HttpMethod.GET,
-               HttpMethod.PUT,
-               HttpMethod.PATCH,
-               HttpMethod.DELETE
-        };
+        //CORS configuration
+        cors.addMapping("/**").allowedOrigins(url).allowedMethods("GET", "POST", "PUT", "DELETE");
         // expose ids
         // Cho phép id trong khi trả về json
 //        Class[] classes = entityManager.getMetamodel()
@@ -35,6 +34,14 @@ public class MethodRestConfig implements RepositoryRestConfigurer {
 
         // Chỉ có thể loại hiển thị id
         //config.exposeIdsFor(TheLoai.class);
+
+        // Chặn các method
+        HttpMethod[] chanCacPhuongThuc ={
+                HttpMethod.GET,
+                HttpMethod.PUT,
+                HttpMethod.PATCH,
+                HttpMethod.DELETE
+        };
 
         disableHttpMethods(TheLoai.class, config, chanCacPhuongThuc);
 
